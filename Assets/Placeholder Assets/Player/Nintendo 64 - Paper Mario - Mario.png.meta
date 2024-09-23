@@ -257,7 +257,7 @@ TextureImporter:
         width: 32
         height: 56
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -278,7 +278,7 @@ TextureImporter:
         width: 32
         height: 56
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -299,7 +299,7 @@ TextureImporter:
         width: 32
         height: 56
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -320,7 +320,7 @@ TextureImporter:
         width: 32
         height: 56
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -328,6 +328,174 @@ TextureImporter:
       bones: []
       spriteID: 556fa48210fc23949b831c9a4b6ab009
       internalID: 1839077665
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nintendo 64 - Paper Mario - Mario_10
+      rect:
+        serializedVersion: 2
+        x: 329
+        y: 1515
+        width: 48
+        height: 56
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a46ad109ddce11c4e8c07b6dbe03b4f5
+      internalID: -660372590
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nintendo 64 - Paper Mario - Mario_11
+      rect:
+        serializedVersion: 2
+        x: 378
+        y: 1515
+        width: 48
+        height: 56
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 52ba04f9b27ac0f44ad53887503fd11a
+      internalID: 378950955
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nintendo 64 - Paper Mario - Mario_12
+      rect:
+        serializedVersion: 2
+        x: 427
+        y: 1515
+        width: 48
+        height: 56
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ce2046c9540c2df479d0458f27196981
+      internalID: -1327184456
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nintendo 64 - Paper Mario - Mario_13
+      rect:
+        serializedVersion: 2
+        x: 476
+        y: 1515
+        width: 48
+        height: 56
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4e1cb9a8fc67b6947967609b969fa70e
+      internalID: 1928614017
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nintendo 64 - Paper Mario - Mario_14
+      rect:
+        serializedVersion: 2
+        x: 525
+        y: 1515
+        width: 48
+        height: 56
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3dad5e4c74e950b4ea9f380638ed23bc
+      internalID: 1526560005
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nintendo 64 - Paper Mario - Mario_15
+      rect:
+        serializedVersion: 2
+        x: 574
+        y: 1515
+        width: 48
+        height: 56
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6b1fd26dc3d55594cb40067e32dd2b29
+      internalID: 80237389
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nintendo 64 - Paper Mario - Mario_16
+      rect:
+        serializedVersion: 2
+        x: 427
+        y: 1458
+        width: 48
+        height: 56
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 174f7c3ab74f9f54da60231b481f4510
+      internalID: 875303619
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nintendo 64 - Paper Mario - Mario_17
+      rect:
+        serializedVersion: 2
+        x: 476
+        y: 1458
+        width: 48
+        height: 56
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 46e42d54ae5f90b419517509997858b9
+      internalID: 1219307282
       vertices: []
       indices: 
       edges: []
@@ -345,6 +513,14 @@ TextureImporter:
     nameFileIdTable:
       Nintendo 64 - Paper Mario - Mario_0: 949014222
       Nintendo 64 - Paper Mario - Mario_1: 267577072
+      Nintendo 64 - Paper Mario - Mario_10: -660372590
+      Nintendo 64 - Paper Mario - Mario_11: 378950955
+      Nintendo 64 - Paper Mario - Mario_12: -1327184456
+      Nintendo 64 - Paper Mario - Mario_13: 1928614017
+      Nintendo 64 - Paper Mario - Mario_14: 1526560005
+      Nintendo 64 - Paper Mario - Mario_15: 80237389
+      Nintendo 64 - Paper Mario - Mario_16: 875303619
+      Nintendo 64 - Paper Mario - Mario_17: 1219307282
       Nintendo 64 - Paper Mario - Mario_2: 705171643
       Nintendo 64 - Paper Mario - Mario_3: -848756882
       Nintendo 64 - Paper Mario - Mario_4: 1149423403
