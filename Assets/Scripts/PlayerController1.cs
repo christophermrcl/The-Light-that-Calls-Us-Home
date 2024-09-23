@@ -7,7 +7,6 @@ public class PlayerController1 : MonoBehaviour
     public Rigidbody rb;
     public SpriteRenderer sr;
     public Animator anim;
-    public PlayerState pst;
 
     public float speed;
     public float jumpSpeed;
@@ -19,14 +18,19 @@ public class PlayerController1 : MonoBehaviour
     private float? lastGroundedTime;
     private float? jumpButtonPressedTime;
 
+    private bool isToolUse = false;
+    private int comboCount = 0;
+    private float lastClickTime;
+
+    public GameObject meleeCollider;
     // Start is called before the first frame update
     void Start()
     {
         characterController = gameObject.GetComponent<CharacterController>();
-        pst = gameObject.GetComponent<PlayerState>();
         rb = gameObject.GetComponent<Rigidbody>();
         sr = gameObject.GetComponent<SpriteRenderer>();
         anim = gameObject.GetComponent<Animator>();
+
 
         originalStepOffset = characterController.stepOffset;
     }
@@ -34,8 +38,32 @@ public class PlayerController1 : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!isToolUse && Input.GetButtonDown("Fire1"))
+        {
+            
+            Attack();
+        }
+        AttackAnimCheck();
+
+
+        CharacterMove();
+    }
+
+    private void FixedUpdate()
+    {
+        
+    }
+
+    private void CharacterMove()
+    {
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
+
+        if (isToolUse)
+        {
+            horizontalInput = 0;
+            verticalInput = 0;
+        }
 
         Vector3 movementDirection = new Vector3(horizontalInput, 0, verticalInput);
         float magnitude = Mathf.Clamp01(movementDirection.magnitude) * speed;
@@ -48,7 +76,7 @@ public class PlayerController1 : MonoBehaviour
             lastGroundedTime = Time.time;
         }
 
-        if (Input.GetButtonDown("Jump"))
+        if (!isToolUse && Input.GetButtonDown("Jump"))
         {
             jumpButtonPressedTime = Time.time;
         }
@@ -74,16 +102,18 @@ public class PlayerController1 : MonoBehaviour
         Vector3 velocity = movementDirection * magnitude;
         velocity.y = ySpeed;
 
-        characterController.Move(velocity * Time.deltaTime);
 
-        float x = Input.GetAxis("Horizontal");
-        float y = Input.GetAxis("Vertical");
+        characterController.Move(velocity * Time.deltaTime);
+        
+        float x = horizontalInput;
+        float y = verticalInput;
 
         if (x != 0 && x < 0)
         {
             sr.flipX = false;
 
-        } else if (x != 0 && x > 0)
+        }
+        else if (x != 0 && x > 0)
         {
             sr.flipX = true;
         }
@@ -100,7 +130,8 @@ public class PlayerController1 : MonoBehaviour
         if (y != 0 && y > 0)
         {
             anim.SetBool("faceFront", false);
-        }else if(y != 0 && y < 0)
+        }
+        else if (y != 0 && y < 0)
         {
             anim.SetBool("faceFront", true);
         }
@@ -109,10 +140,53 @@ public class PlayerController1 : MonoBehaviour
         {
             anim.SetBool("isJumping", false);
         }
+
+        MeleeDirection(x);
     }
 
-    private void FixedUpdate()
+
+    private void Attack()
+    {
+            if(comboCount <= 0)
+            {
+                comboCount++;
+                isToolUse = true;
+                anim.SetInteger("attackSeq", comboCount);
+                anim.SetBool("isAttacking", true);
+                lastClickTime = Time.time;
+            }
+    }
+
+    private void AttackAnimCheck()
     {
         
+        if (!isToolUse && Time.time - lastClickTime > 0.5f)
+        {
+            comboCount = 0;
+        }
+        if (anim.GetBool("isAttacking") && anim.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.3f)
+        {
+            meleeCollider.SetActive(true);
+        }
+        if (anim.GetBool("isAttacking") && anim.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.4f)
+        {
+            meleeCollider.SetActive(false);
+        }
+        if (anim.GetBool("isAttacking") && anim.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f)
+        {
+            isToolUse = false;
+            anim.SetBool("isAttacking", false);
+        }
+    }
+
+    private void MeleeDirection(float x)
+    {
+        if(x > 0)
+        {
+            meleeCollider.transform.localScale = new Vector3(-1, 1, 1);
+        }else if(x < 0)
+        {
+            meleeCollider.transform.localScale = new Vector3(1, 1, 1);
+        }
     }
 }
