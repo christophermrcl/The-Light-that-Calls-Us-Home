@@ -141,15 +141,15 @@ AnimatorStateTransition:
   m_PrefabAsset: {fileID: 0}
   m_Name: 
   m_Conditions:
+  - m_ConditionMode: 1
+    m_ConditionEvent: isAttacking
+    m_EventTreshold: 0
   - m_ConditionMode: 2
     m_ConditionEvent: faceFront
     m_EventTreshold: 0
   - m_ConditionMode: 6
     m_ConditionEvent: attackSeq
     m_EventTreshold: 1
-  - m_ConditionMode: 1
-    m_ConditionEvent: isAttacking
-    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 507503393417618123}
   m_Solo: 0
@@ -199,8 +199,8 @@ AnimatorStateMachine:
     m_Position: {x: 270, y: 440, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions:
-  - {fileID: 3773179438454221960}
   - {fileID: -2330464149880337246}
+  - {fileID: 3773179438454221960}
   - {fileID: 3908488233123055183}
   - {fileID: 4923816522092409389}
   - {fileID: 1639021946210991003}
@@ -211,7 +211,7 @@ AnimatorStateMachine:
   m_StateMachineTransitions: {}
   m_StateMachineBehaviours: []
   m_AnyStatePosition: {x: -10, y: 110, z: 0}
-  m_EntryPosition: {x: -20, y: 180, z: 0}
+  m_EntryPosition: {x: 540, y: 190, z: 0}
   m_ExitPosition: {x: 800, y: 120, z: 0}
   m_ParentStateMachinePosition: {x: 800, y: 20, z: 0}
   m_DefaultState: {fileID: -6398648279998515793}
@@ -427,14 +427,14 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
+    m_ConditionEvent: isAttacking
+    m_EventTreshold: 0
+  - m_ConditionMode: 1
     m_ConditionEvent: faceFront
     m_EventTreshold: 0
   - m_ConditionMode: 6
     m_ConditionEvent: attackSeq
     m_EventTreshold: 1
-  - m_ConditionMode: 1
-    m_ConditionEvent: isAttacking
-    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -6106736821398116736}
   m_Solo: 0
