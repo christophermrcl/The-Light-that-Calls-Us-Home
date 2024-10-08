@@ -1,10 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.IO.LowLevel.Unsafe;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.XR;
+using UnityEngine.UIElements;
 
-public class PlayerController1 : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
     public Rigidbody rb;
     public SpriteRenderer sr;
@@ -15,11 +18,13 @@ public class PlayerController1 : MonoBehaviour
     public float jumpButtonGracePeriod;
 
     private CharacterController characterController;
-    private Vector2 moveDirection;
+    public Vector2 moveDirection;
+    public Vector2 lastMoveDirection;
     private float ySpeed;
     private float originalStepOffset;
     private float? lastGroundedTime;
     private float? jumpButtonPressedTime;
+    public Vector3 velocity;
 
     private bool isToolUse = false;
     private int comboCount = 0;
@@ -41,7 +46,13 @@ public class PlayerController1 : MonoBehaviour
     private InputAction rangedGamepad;
     private InputAction rangedMouse;
     private InputAction aimGamepad;
+    private InputAction interact;
 
+    public LayerMask specialGroundLayer;
+    public bool isSliding = false;
+    private Vector2 slideDirection;
+
+    private GameObject held;
     // Start is called before the first frame update
 
     private void Awake()
@@ -79,6 +90,9 @@ public class PlayerController1 : MonoBehaviour
 
         aimGamepad = playerControls.Control.AimGamepad;
         aimGamepad.Enable();
+
+        interact = playerControls.Control.Interact;
+        interact.Enable();
     }
 
     private void OnDisable()
@@ -89,6 +103,7 @@ public class PlayerController1 : MonoBehaviour
         rangedGamepad.Disable();
         rangedMouse.Disable();
         aimGamepad.Disable();
+        interact.Disable();
     }
 
     // Update is called once per frame
@@ -103,21 +118,83 @@ public class PlayerController1 : MonoBehaviour
         {
             trajectoryLine.SetActive(false);
         }
-        
-        
+
+
         AttackAnimCheck();
 
-        CharacterMove();
+        if (!isSliding)
+        {
+            CharacterMove();
+        }
+        else
+        {
+            Slide();
+        }
+        if (!IsSlippery() || (Mathf.Abs(characterController.velocity.x) < 0.01f && Mathf.Abs(characterController.velocity.z) < 0.01f))
+        {
+            isSliding = false;
+        }
+
+        if (lastMoveDirection != Vector2.zero)
+        {
+            SnapFace();
+        }
+
+        if (interact.IsPressed())
+        {
+            GetFront();
+        }
+        else
+        {
+            if (held != null)
+            {
+                held.transform.parent = null;
+                held = null;
+            }
+        }
+
+        if(held != null)
+        {
+            StopMovableObject();
+        }
     }
 
     private void FixedUpdate()
     {
-        
+
     }
 
     private void CharacterMove()
     {
         moveDirection = move.ReadValue<Vector2>();
+
+        if (held)
+        {
+            if (lastMoveDirection.x == 0 && lastMoveDirection.y != 0)
+            {
+                moveDirection = new Vector2(0, moveDirection.y);
+                if((lastMoveDirection.y < 0 && moveDirection.y > 0) || (lastMoveDirection.y > 0 && moveDirection.y < 0))
+                {
+                    moveDirection = Vector2.zero;
+                }
+
+            }
+
+            if (lastMoveDirection.x != 0 && lastMoveDirection.y == 0)
+            {
+                moveDirection = new Vector2(moveDirection.x, 0);
+
+                if ((lastMoveDirection.x < 0 && moveDirection.x > 0) || (lastMoveDirection.x > 0 && moveDirection.x < 0))
+                {
+                    moveDirection = Vector2.zero;
+                }
+            }
+        }
+
+        if (moveDirection != Vector2.zero)
+        {
+            lastMoveDirection = moveDirection;
+        }
 
         float horizontalInput = moveDirection.x;
         float verticalInput = moveDirection.y;
@@ -139,8 +216,6 @@ public class PlayerController1 : MonoBehaviour
             lastGroundedTime = Time.time;
         }
 
-        
-
         if (Time.time - lastGroundedTime <= jumpButtonGracePeriod)
         {
             characterController.stepOffset = originalStepOffset;
@@ -159,12 +234,11 @@ public class PlayerController1 : MonoBehaviour
             characterController.stepOffset = 0;
         }
 
-        Vector3 velocity = movementDirection * magnitude;
+        velocity = movementDirection * magnitude;
         velocity.y = ySpeed;
 
-
         characterController.Move(velocity * Time.deltaTime);
-        
+
         float x = horizontalInput;
         float y = verticalInput;
 
@@ -202,9 +276,15 @@ public class PlayerController1 : MonoBehaviour
         }
 
         MeleeDirection(x);
+
+        if (IsSlippery())
+        {
+            slideDirection = GetClosestDirection(move.ReadValue<Vector2>());
+            isSliding = true;
+        }
     }
 
-    private void Jump(InputAction.CallbackContext context) 
+    private void Jump(InputAction.CallbackContext context)
     {
         if (!isToolUse && Input.GetButtonDown("Jump"))
         {
@@ -212,12 +292,13 @@ public class PlayerController1 : MonoBehaviour
         }
     }
 
-    private void Attack(InputAction.CallbackContext context) 
+    private void Attack(InputAction.CallbackContext context)
     {
         if (!isToolUse && !(rangedGamepad.IsPressed() || rangedMouse.IsPressed()))
         {
             MeleeAttack();
-        }else if (!isToolUse && (rangedGamepad.IsPressed() || rangedMouse.IsPressed()))
+        }
+        else if (!isToolUse && (rangedGamepad.IsPressed() || rangedMouse.IsPressed()))
         {
             RangedAttack();
         }
@@ -225,14 +306,14 @@ public class PlayerController1 : MonoBehaviour
 
     private void MeleeAttack()
     {
-            if(comboCount <= 0)
-            {
-                comboCount++;
-                isToolUse = true;
-                anim.SetInteger("attackSeq", comboCount);
-                anim.SetBool("isAttacking", true);
-                lastClickTime = Time.time;
-            }
+        if (comboCount <= 0)
+        {
+            comboCount++;
+            isToolUse = true;
+            anim.SetInteger("attackSeq", comboCount);
+            anim.SetBool("isAttacking", true);
+            lastClickTime = Time.time;
+        }
     }
 
     private void RangedAttack()
@@ -255,7 +336,7 @@ public class PlayerController1 : MonoBehaviour
 
     private void AttackAnimCheck()
     {
-        
+
         if (!isToolUse && Time.time - lastClickTime > 0.5f)
         {
             comboCount = 0;
@@ -277,10 +358,11 @@ public class PlayerController1 : MonoBehaviour
 
     private void MeleeDirection(float x)
     {
-        if(x > 0)
+        if (x > 0)
         {
             meleeCollider.transform.localScale = new Vector3(-1f, meleeCollider.transform.localScale.y, meleeCollider.transform.localScale.z);
-        }else if(x < 0)
+        }
+        else if (x < 0)
         {
             meleeCollider.transform.localScale = new Vector3(1f, meleeCollider.transform.localScale.y, meleeCollider.transform.localScale.z);
         }
@@ -298,10 +380,107 @@ public class PlayerController1 : MonoBehaviour
         {
             trajectoryDirection = aimGamepad.ReadValue<Vector2>();
         }
-        
+
 
         rangedAngle = Mathf.Atan2(trajectoryDirection.y, trajectoryDirection.x) * Mathf.Rad2Deg;
 
         trajectoryLine.transform.rotation = Quaternion.Euler(0, -rangedAngle, 0);
+    }
+
+
+    private Vector2 GetClosestDirection(Vector2 input)
+    {
+        // Define the four cardinal directions
+        Vector2 up = Vector2.up;
+        Vector2 down = Vector2.down;
+        Vector2 left = Vector2.left;
+        Vector2 right = Vector2.right;
+
+        // Compare the input direction with each cardinal direction and find the closest one
+        Vector2[] directions = { up, down, left, right };
+        Vector2 closestDirection = directions[0];
+        float maxDot = Vector2.Dot(input.normalized, closestDirection); // Start by comparing with 'up'
+
+        // Loop through each direction to find the closest one
+        foreach (Vector2 dir in directions)
+        {
+            float dot = Vector2.Dot(input.normalized, dir);
+            if (dot > maxDot)
+            {
+                maxDot = dot;
+                closestDirection = dir;
+            }
+        }
+
+        return closestDirection;
+    }
+
+    private bool IsSlippery()
+    {
+        RaycastHit hit;
+        // Cast a ray downwards from the player's position to check if the ground below is tagged as "Slippery"
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, 1f, specialGroundLayer))
+        {
+            if (hit.collider.CompareTag("Slippery"))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void Slide()
+    {
+        Debug.Log("sliding");
+        Vector3 movementDirection = new Vector3(slideDirection.x, 0, slideDirection.y);
+        float magnitude = Mathf.Clamp01(movementDirection.magnitude) * speed;
+        movementDirection.Normalize();
+
+        velocity = movementDirection * magnitude;
+
+        characterController.Move(velocity * Time.deltaTime);
+    }
+
+    private void GetFront()
+    {
+        RaycastHit hit;
+        Vector3 directionRay = new Vector3(lastMoveDirection.x, 0, lastMoveDirection.y);
+        if (Physics.Raycast(transform.position, directionRay, out hit, 0.5f))
+        {
+            if (hit.collider.CompareTag("Movable"))
+            {
+                if (held == null)
+                {
+                    held = hit.transform.gameObject;
+                    hit.transform.parent = this.transform;
+                }
+            }
+        }
+    }
+
+    private void SnapFace()
+    {
+        if (Mathf.Abs(lastMoveDirection.x) > Mathf.Abs(lastMoveDirection.y))
+        {
+            lastMoveDirection = lastMoveDirection.x > 0 ? Vector2.right : Vector2.left; // Right or Left
+        }
+        else
+        {
+            lastMoveDirection = lastMoveDirection.y > 0 ? Vector2.up : Vector2.down; // Up or Down
+        }
+    }
+
+    private void StopMovableObject()
+    {
+        RaycastHit hit;
+        Vector3 directionRay = new Vector3(lastMoveDirection.x, 0, lastMoveDirection.y);
+        float halfExt = held.GetComponent<BoxCollider>().bounds.size.x / 2;
+        Vector3 halfExtend = new Vector3(halfExt, halfExt, halfExt);
+
+        if (Physics.BoxCast(held.transform.position, halfExtend , directionRay, out hit, Quaternion.Euler(0,0,0), held.GetComponent<BoxCollider>().bounds.size.x / 32 + 0.01f))
+        {
+            held.transform.parent = null;
+            held = null;
+        }
     }
 }
