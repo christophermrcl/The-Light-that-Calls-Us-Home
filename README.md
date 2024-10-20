@@ -27,6 +27,14 @@ Itch.io : https://sthana.itch.io/the-light-that-calls-us-home
 
 <br>
 
+## 📋Project Info
+|  | |
+| ------------------- | ------------------------------------------------------------ |
+| Unity Version | Unity 2022.3.46f1 |
+| Development Time | 2 month (**Still In Development**) |
+
+<br>
+
 ## 📂Files description
 
 ```
@@ -67,8 +75,3 @@ The following controls are bound in-game, for gameplay and testing.
 | `PlayerController.cs`  | Handles all action of player: Movement, attacking, and animation |
 | `PlayerInputAction.cs`  | Manage all keybind input for mouse, keyboard, and gamepad |
 
-
-<br>
-
-## 🔥Unity Version
-This game was developed using **Unity (2022.3.46f1)**.
