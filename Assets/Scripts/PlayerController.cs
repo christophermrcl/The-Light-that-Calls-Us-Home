@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.IO.LowLevel.Unsafe;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.XR;
@@ -9,6 +8,8 @@ using UnityEngine.UIElements;
 
 public class PlayerController : MonoBehaviour
 {
+
+
     public Rigidbody rb;
     public SpriteRenderer sr;
     public Animator anim;
@@ -31,6 +32,8 @@ public class PlayerController : MonoBehaviour
     private float lastClickTime;
     public GameObject RangedPrefab;
 
+    public float rangedAttackCooldown = 0.5f;
+    private float lastRangedAttack;
 
     public GameObject trajectoryLine;
     private Vector2 mousePosition;
@@ -55,6 +58,8 @@ public class PlayerController : MonoBehaviour
     private GameObject held;
     // Start is called before the first frame update
 
+    private GameState GameState;
+
     private void Awake()
     {
         playerControls = new PlayerInputAction();
@@ -66,6 +71,7 @@ public class PlayerController : MonoBehaviour
         sr = gameObject.GetComponent<SpriteRenderer>();
         anim = gameObject.GetComponent<Animator>();
 
+        GameState = GameObject.FindGameObjectWithTag("GameManager").gameObject.GetComponent<GameState>();
 
         originalStepOffset = characterController.stepOffset;
     }
@@ -109,7 +115,17 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (rangedGamepad.IsPressed() || rangedMouse.IsPressed())
+        if (GameState.isPaused)
+        {
+            anim.SetBool("isAttacking", false);
+            anim.SetBool("isWalk", false);
+            anim.SetBool("isJumping", false);
+            trajectoryLine.SetActive(false);
+            isToolUse = false;
+            return;
+        }
+
+        if (rangedGamepad.IsPressed() || rangedMouse.IsPressed() && !isSliding && held == null)
         {
             trajectoryLine.SetActive(true);
             TrajectoryLine();
@@ -211,7 +227,7 @@ public class PlayerController : MonoBehaviour
 
         ySpeed += Physics.gravity.y * Time.deltaTime;
 
-        if (characterController.isGrounded)
+        if (characterController.isGrounded && !isToolUse)
         {
             lastGroundedTime = Time.time;
         }
@@ -286,7 +302,7 @@ public class PlayerController : MonoBehaviour
 
     private void Jump(InputAction.CallbackContext context)
     {
-        if (!isToolUse && Input.GetButtonDown("Jump"))
+        if (!isToolUse && Input.GetButtonDown("Jump") && held == null)
         {
             jumpButtonPressedTime = Time.time;
         }
@@ -294,13 +310,22 @@ public class PlayerController : MonoBehaviour
 
     private void Attack(InputAction.CallbackContext context)
     {
+        if (isSliding || held != null)
+        {
+            return;
+        }
         if (!isToolUse && !(rangedGamepad.IsPressed() || rangedMouse.IsPressed()))
         {
             MeleeAttack();
         }
         else if (!isToolUse && (rangedGamepad.IsPressed() || rangedMouse.IsPressed()))
         {
-            RangedAttack();
+            if(Time.time - lastRangedAttack >= rangedAttackCooldown)
+            {
+                RangedAttack();
+                lastRangedAttack = Time.time;
+            }
+            
         }
     }
 
@@ -475,7 +500,7 @@ public class PlayerController : MonoBehaviour
         RaycastHit hit;
         Vector3 directionRay = new Vector3(lastMoveDirection.x, 0, lastMoveDirection.y);
         float halfExt = held.GetComponent<BoxCollider>().bounds.size.x / 2;
-        Vector3 halfExtend = new Vector3(halfExt, halfExt, halfExt);
+        Vector3 halfExtend = new Vector3(halfExt + 0.001f, halfExt + 0.001f, halfExt + 0.001f);
 
         if (Physics.BoxCast(held.transform.position, halfExtend , directionRay, out hit, Quaternion.Euler(0,0,0), held.GetComponent<BoxCollider>().bounds.size.x / 32 + 0.01f))
         {
