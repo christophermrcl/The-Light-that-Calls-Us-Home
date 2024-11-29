@@ -9,11 +9,13 @@ TagManager:
   - Slippery
   - Movable
   - GameManager
+  - BlackPanel
+  - Door
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Post Processing
   - Water
   - UI
   - Terrain

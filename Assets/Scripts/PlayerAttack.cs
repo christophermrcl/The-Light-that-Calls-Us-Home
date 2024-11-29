@@ -23,5 +23,9 @@ public class PlayerAttack : MonoBehaviour
         {
             other.gameObject.GetComponent<EnemyHP>().Attacked(attackMeleeDamage);
         }
+        if (other.gameObject.CompareTag("Door"))
+        {
+            other.gameObject.GetComponent<DoorState>().HelperWisp();
+        }
     }
 }
