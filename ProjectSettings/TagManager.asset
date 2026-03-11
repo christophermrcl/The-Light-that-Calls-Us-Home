@@ -11,6 +11,7 @@ TagManager:
   - GameManager
   - BlackPanel
   - Door
+  - Boss
   layers:
   - Default
   - TransparentFX
@@ -21,10 +22,10 @@ TagManager:
   - Terrain
   - test
   - SpecialGround
-  - 
-  - 
-  - 
-  - 
+  - Player
+  - Shadow
+  - NPC
+  - Non DOF
   - 
   - 
   - 

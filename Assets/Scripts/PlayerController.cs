@@ -26,6 +26,7 @@ public class PlayerController : MonoBehaviour
     private float? lastGroundedTime;
     private float? jumpButtonPressedTime;
     public Vector3 velocity;
+    private bool isFalling;
 
     private bool isToolUse = false;
     private int comboCount = 0;
@@ -41,7 +42,8 @@ public class PlayerController : MonoBehaviour
     private Vector2 trajectoryDirection;
     private float rangedAngle;
 
-    public GameObject meleeCollider;
+    public GameObject leftMeleeCollider;
+    public GameObject rightMeleeCollider;
     public PlayerInputAction playerControls;
     private InputAction move;
     private InputAction jump;
@@ -127,11 +129,13 @@ public class PlayerController : MonoBehaviour
 
         if (rangedGamepad.IsPressed() || rangedMouse.IsPressed() && !isSliding && held == null)
         {
+            anim.SetBool("isRanged", true);
             trajectoryLine.SetActive(true);
             TrajectoryLine();
         }
         else
         {
+            anim.SetBool("isRanged", false);
             trajectoryLine.SetActive(false);
         }
 
@@ -215,7 +219,7 @@ public class PlayerController : MonoBehaviour
         float horizontalInput = moveDirection.x;
         float verticalInput = moveDirection.y;
 
-        if (isToolUse)
+        if (isToolUse || anim.GetBool("isAttacking"))
         {
             horizontalInput = 0;
             verticalInput = 0;
@@ -226,6 +230,11 @@ public class PlayerController : MonoBehaviour
         movementDirection.Normalize();
 
         ySpeed += Physics.gravity.y * Time.deltaTime;
+
+        if (characterController.isGrounded)
+        {
+            anim.SetBool("isFalling", false);
+        }
 
         if (characterController.isGrounded && !isToolUse)
         {
@@ -258,14 +267,14 @@ public class PlayerController : MonoBehaviour
         float x = horizontalInput;
         float y = verticalInput;
 
-        if (x != 0 && x < 0)
-        {
-            sr.flipX = false;
-
-        }
-        else if (x != 0 && x > 0)
+        if (!anim.GetBool("isAttacking") && x != 0 && x < 0)
         {
             sr.flipX = true;
+
+        }
+        else if (!anim.GetBool("isAttacking") && x != 0 && x > 0)
+        {
+            sr.flipX = false;
         }
 
         if ((x != 0 && (x > 0 || x < 0)) || (y != 0 && (y > 0 || y < 0)))
@@ -277,21 +286,11 @@ public class PlayerController : MonoBehaviour
             anim.SetBool("isWalk", false);
         }
 
-        if (y != 0 && y > 0)
-        {
-            anim.SetBool("faceFront", false);
-        }
-        else if (y != 0 && y < 0)
-        {
-            anim.SetBool("faceFront", true);
-        }
-
         if (characterController.isGrounded)
         {
             anim.SetBool("isJumping", false);
         }
 
-        MeleeDirection(x);
 
         if (IsSlippery())
         {
@@ -322,6 +321,7 @@ public class PlayerController : MonoBehaviour
         {
             if(Time.time - lastRangedAttack >= rangedAttackCooldown)
             {
+                anim.SetBool("isAttacking", true);
                 RangedAttack();
                 lastRangedAttack = Time.time;
             }
@@ -331,14 +331,9 @@ public class PlayerController : MonoBehaviour
 
     private void MeleeAttack()
     {
-        if (comboCount <= 0)
-        {
-            comboCount++;
-            isToolUse = true;
-            anim.SetInteger("attackSeq", comboCount);
-            anim.SetBool("isAttacking", true);
-            lastClickTime = Time.time;
-        }
+        isToolUse = true;
+        anim.SetBool("isAttacking", true);
+        lastClickTime = Time.time;
     }
 
     private void RangedAttack()
@@ -368,30 +363,32 @@ public class PlayerController : MonoBehaviour
         }
         if (anim.GetBool("isAttacking") && anim.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.3f)
         {
-            meleeCollider.SetActive(true);
+            if (sr.flipX)
+            {
+                leftMeleeCollider.SetActive(true);
+            }
+            else
+            {
+                rightMeleeCollider.SetActive(true);
+            }
         }
         if (anim.GetBool("isAttacking") && anim.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.4f)
         {
-            meleeCollider.SetActive(false);
+            leftMeleeCollider.SetActive(false);
+            rightMeleeCollider.SetActive(false);
         }
         if (anim.GetBool("isAttacking") && anim.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f)
         {
             isToolUse = false;
             anim.SetBool("isAttacking", false);
         }
+        if (anim.GetBool("isJumping") && anim.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.99f)
+        {
+            anim.SetBool("isFalling", true);
+            anim.SetBool("isJumping", false);
+        }
     }
 
-    private void MeleeDirection(float x)
-    {
-        if (x > 0)
-        {
-            meleeCollider.transform.localScale = new Vector3(-1f, meleeCollider.transform.localScale.y, meleeCollider.transform.localScale.z);
-        }
-        else if (x < 0)
-        {
-            meleeCollider.transform.localScale = new Vector3(1f, meleeCollider.transform.localScale.y, meleeCollider.transform.localScale.z);
-        }
-    }
 
     private void TrajectoryLine()
     {
@@ -408,6 +405,15 @@ public class PlayerController : MonoBehaviour
 
 
         rangedAngle = Mathf.Atan2(trajectoryDirection.y, trajectoryDirection.x) * Mathf.Rad2Deg;
+
+        if ((-rangedAngle >= 0 && -rangedAngle <= 90) || (-rangedAngle <= 0 && -rangedAngle >= -90))
+        {
+            sr.flipX = false;
+        }
+        else
+        {
+            sr.flipX = true;
+        }
 
         trajectoryLine.transform.rotation = Quaternion.Euler(0, -rangedAngle, 0);
     }

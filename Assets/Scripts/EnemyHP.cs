@@ -1,11 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class EnemyHP : MonoBehaviour
 {
-    public int maxHP;
-    private int currHP;
+    public float maxHP;
+    private float currHP;
+
+    public GameObject HP;
+    public Image fillImage;
     // Start is called before the first frame update
     void Start()
     {
@@ -19,10 +23,17 @@ public class EnemyHP : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        if(currHP < maxHP)
+        {
+            HP.SetActive(true);
+        }
+
+        fillImage.fillAmount = currHP / maxHP;
     }
 
-    public void Attacked(int damage)
+    public void Hurt(float damage)
     {
-        currHP = currHP - damage;
+        currHP -= damage;
     }
 }

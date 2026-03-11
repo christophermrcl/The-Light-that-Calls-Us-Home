@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Path : MonoBehaviour
+public class Paths : MonoBehaviour
 {
     public GameObject targetPath;
 
@@ -28,6 +28,8 @@ public class Path : MonoBehaviour
         {
             GameObject.FindGameObjectWithTag("BlackPanel").GetComponent<CrossMapPanel>().targetPath = targetPath;
             GameObject.FindGameObjectWithTag("BlackPanel").GetComponent<CrossMapPanel>().isFade = true;
+
+            GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerHP>().checkpoint = this.transform.position;
         }
     }
 }

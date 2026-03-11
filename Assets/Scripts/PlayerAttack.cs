@@ -1,10 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
+using UnityEngine.VFX;
 
 public class PlayerAttack : MonoBehaviour
 {
-    public int attackMeleeDamage;
+    public float attackMeleeDamage;
+    public GameObject hitPrefab;
     // Start is called before the first frame update
     void Start()
     {
@@ -14,18 +17,23 @@ public class PlayerAttack : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("Enemy"))
         {
-            other.gameObject.GetComponent<EnemyHP>().Attacked(attackMeleeDamage);
+            GameObject hit = Instantiate(hitPrefab);
+            hit.transform.position = other.transform.position;
+            other.gameObject.GetComponent<EnemyHP>().Hurt(attackMeleeDamage);
         }
-        if (other.gameObject.CompareTag("Door"))
+        if (other.gameObject.CompareTag("Boss"))
         {
-            other.gameObject.GetComponent<DoorState>().HelperWisp();
+            GameObject hit = Instantiate(hitPrefab);
+            hit.transform.position = other.transform.position;
+            other.gameObject.GetComponent<BossHP>().Hurt(attackMeleeDamage);
         }
     }
+
 }
